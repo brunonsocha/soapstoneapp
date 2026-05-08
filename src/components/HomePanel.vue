@@ -8,9 +8,10 @@
       <small class="text-muted">{{ props.user.email }}</small>
     </div>
 
-    <div class="map-placeholder border border-warning rounded p-5 mb-4">
+    <!-- <div class="map-placeholder border border-warning rounded p-5 mb-4 w-100">
       TODO: IMPLEMENT THE MAP HERE
-    </div>
+    </div> -->
+    <AppMap :user="props.user" />
 
     <button @click="emit('logout')" class="btn btn-outline-danger px-4 btn-sm">
       Leave
@@ -19,6 +20,8 @@
 </template>
 
 <script setup>
+import AppMap from "./HomeMap.vue";
+
 const props = defineProps({
   user: Object,
   nickname: String,
