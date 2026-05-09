@@ -11,7 +11,8 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
+import { ref as sRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const RECEIVED_PIN_IDS_KEY = "soapstone.receivedPinIds";
 
@@ -26,7 +27,8 @@ const mapPinDoc = (snapshot) => {
     createdAt: data.createdAt,
     lat: data.location.latitude,
     lng: data.location.longitude,
-    photoUrl: data.photoUrl ?? null,
+    type: data.type || "text",
+    content: data.content || "",
   };
 };
 
@@ -154,15 +156,16 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     }
 
     statusMessage.value = "";
-
-    marker
-      .bindPopup(
-        pin.photoUrl
-          ? `<div class="photo-popup"><img src="${pin.photoUrl}" alt="Soapstone photo"></div>`
-          : "Pinezka jest w zasięgu. Zdjęcie będzie tu później",
-        { closeButton: false, maxWidth: 600 },
-      )
-      .openPopup();
+    let popupHtml = "";
+    if (pin.type === "image") {
+      popupHtml = `<div class="photo-popup"><img src="${pin.content}" alt="Photo"></div>`;
+    } else if (pin.type === "voice") {
+      popupHtml = `<div class="audio-popup"><audio controls src="${pin.content}"></audio></div>`;
+    } else {
+      popupHtml = `<div class="text-popup"><p>${pin.content}</p></div>`;
+    }
+    marker.bindPopup(popupHtml, { closeButton: false, maxWidth: 600 }).openPopup();
+    
   };
 
   const addPin = (pin) => {
@@ -202,27 +205,69 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     }
   };
 
-  const createPinHere = async () => {
+  const savePinToFirestore = async (type, content) => {
+    const docRef = await addDoc(collection(db, "pins"), {
+      createdAt: serverTimestamp(),
+      location: new GeoPoint(userCoords.value.lat, userCoords.value.lng),
+      ownerUid: user.value.uid, 
+      type: type,
+      content: content
+    });
+
+    const newPin = {
+      id: docRef.id,
+      ownerUid: user.value.uid,
+      lat: userCoords.value.lat,
+      lng: userCoords.value.lng,
+      type,
+      content
+    };
+
+    pins.value.push(newPin);
+    addPin(newPin);
+    selectedPin.value = newPin;
+    centerOnUser();
+  };
+
+  const createPinHere = async (type) => {
     if (!userCoords.value) {
       statusMessage.value = "Najpierw pozwól aplikacji pobrać lokalizację";
       return;
     }
 
-    if (!user?.uid) {
-      statusMessage.value = "Musisz być zalogowany";
-      return;
+    if (type === "text") {
+      const msg = prompt("Wpisz swoją wiadomość:");
+      if (msg) await savePinToFirestore("text", msg);
+    } 
+  
+    else if (type === "image") {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.capture = "environment";
+
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        statusMessage.value = "Przesyłanie obrazu...";
+        const fileRef = sRef(storage, `pins/${user.value.uid}/${Date.now()}_${file.name}`);
+      
+        try {
+          await uploadBytes(fileRef, file);
+          const url = await getDownloadURL(fileRef);
+          await savePinToFirestore("image", url);
+          statusMessage.value = "Obraz zapisany!";
+        } catch (err) {
+          statusMessage.value = "Błąd przesyłania.";
+        }
+      };
+      input.click();
+    } 
+  
+    else if (type === "voice") {
+      statusMessage.value = "Nagrywanie głosowe będzie dostępne wkrótce.";
     }
-
-    const pin = await createEmptyPin({
-      ownerUid: user.uid,
-      lat: userCoords.value.lat,
-      lng: userCoords.value.lng,
-    });
-
-    pins.value.push(pin);
-    addPin(pin);
-    selectedPin.value = pin;
-    centerOnUser();
   };
 
   const shareSelectedPin = async () => {

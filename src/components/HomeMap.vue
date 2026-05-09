@@ -2,9 +2,19 @@
   <section class="map-shell">
     <div ref="mapEl" class="map-root"></div>
 
+    <Transition name="fade">
+      <PinTypeSelector 
+        v-if="isSelectingType" 
+        @select="handleTypeSelection" 
+        @cancel="isSelectingType = false" 
+      />
+    </Transition>
+
     <div class="map-toolbar">
       <button @click="centerOnUser">Locate</button>
-      <button @click="createPinHere">Place pin</button>
+      
+      <button @click="isSelectingType = true">Place pin</button>
+      
       <button :disabled="!canShareSelectedPin" @click="shareSelectedPin">
         Share
       </button>
@@ -15,11 +25,15 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
+import PinTypeSelector from "./PinTypeSelector.vue";
 import { useLeafletMap } from "../composables/useLeafletMap";
 
 const props = defineProps({
   user: { type: Object, required: true },
 });
+
+const isSelectingType = ref(false);
 
 const {
   mapEl,
@@ -29,6 +43,11 @@ const {
   createPinHere,
   shareSelectedPin,
 } = useLeafletMap({ user: props.user, rangeMeters: 500 });
+
+const handleTypeSelection = (type) => {
+  isSelectingType.value = false;
+  createPinHere(type);
+};
 </script>
 
 <style scoped>
@@ -40,18 +59,22 @@ const {
 .map-root {
   width: 100%;
   min-height: 420px;
-  height: 70vh;
+  height: 75vh;
+  border: 1px solid var(--app-orange);
+  border-radius: 4px;
 }
 
 .map-toolbar {
   position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  z-index: 500;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 25px;
+  z-index: 1000;
   display: flex;
-  gap: 8px;
-  justify-content: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border: 1px solid var(--app-orange);
+  border-radius: 2px;
 }
 
 .map-toolbar button:disabled {
