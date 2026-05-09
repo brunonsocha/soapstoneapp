@@ -7,5 +7,6 @@
 - Messages dying off after some time?
 
 ## Minor
-- Make nicknames unique, like emails
+- Make nicknames unique, like emails (done)
+- Make it so that the register button, if pressed after inputting data that already pertains to a registered user, simply logs the user in
 - Better styling
