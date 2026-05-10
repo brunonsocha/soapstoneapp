@@ -9,6 +9,9 @@
         <span v-if="formattedCreatedAt" class="viewer-created-at">
           {{ formattedCreatedAt }}
         </span>
+        <span v-if="formattedExpiresIn" class="viewer-created-at">
+          {{ formattedExpiresIn }}
+        </span>
       </div>
 
       <div class="viewer-content">
@@ -64,7 +67,7 @@ const reportPin = () => {
 const messageTypeLabel = computed(() => {
   if (props.pin.type === "image") return "Image message";
   if (props.pin.type === "voice") return "Voice message";
-  return "Text message";
+  return "Text";
 });
 
 const formattedCreatedAt = computed(() => {
@@ -85,6 +88,19 @@ const formattedCreatedAt = computed(() => {
     timeStyle: "short",
   }).format(date);
 });
+
+const formattedExpiresIn = computed(() => {
+  const value = props.pin.expiresAt;
+  if (!value) return "";
+
+  const expiresAt = value.toDate();
+  const hoursLeft = Math.max(
+    0,
+    Math.ceil((expiresAt.getTime() - Date.now()) / (60 * 60 * 1000)),
+  );
+
+  return `${hoursLeft} hour${hoursLeft === 1 ? "" : "s"} to expire`;
+});
 </script>
 
 <style scoped>
@@ -96,7 +112,7 @@ const formattedCreatedAt = computed(() => {
   align-items: stretch;
   justify-content: stretch;
   padding: 0;
-  background: var(--app-overlay);
+  background: rgba(0, 0, 0, 0.72);
 }
 
 .viewer-panel {
@@ -105,8 +121,8 @@ const formattedCreatedAt = computed(() => {
   width: 100%;
   min-height: 100%;
   padding: 20px;
-  background: var(--app-brown);
-  border: 1px solid var(--app-panel-border);
+  background: #14100c;
+  border: 1px solid rgba(255, 140, 0, 0.55);
   border-radius: 0;
   overflow: auto;
 }
@@ -117,7 +133,7 @@ const formattedCreatedAt = computed(() => {
   padding: 8px 12px;
   color: var(--app-text);
   background: transparent;
-  border: 1px solid var(--app-panel-border);
+  border: 1px solid rgba(255, 140, 0, 0.6);
   border-radius: 4px;
 }
 
@@ -133,10 +149,10 @@ const formattedCreatedAt = computed(() => {
 .viewer-coords,
 .viewer-created-at {
   padding: 6px 10px;
-  border: 1px solid var(--app-panel-border-soft);
+  border: 1px solid rgba(255, 140, 0, 0.35);
   border-radius: 999px;
   color: var(--app-text);
-  background: var(--app-panel-fill);
+  background: rgba(255, 255, 255, 0.03);
   font-size: 0.82rem;
 }
 
@@ -163,8 +179,8 @@ const formattedCreatedAt = computed(() => {
 .viewer-text-shell {
   width: 100%;
   padding: 18px;
-  background: var(--app-panel-fill);
-  border: 1px solid var(--app-panel-border-faint);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 140, 0, 0.18);
   border-radius: 8px;
 }
 
