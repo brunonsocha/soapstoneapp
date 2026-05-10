@@ -29,15 +29,28 @@
         ></button>
       </div>
 
-      <div class="offcanvas-body logout-button-container">
-        <button
-          type="button"
-          class="btn btn-outline-danger w-100"
-          data-bs-dismiss="offcanvas"
-          @click="emit('logout')"
-        >
-          Log Out
-        </button>
+      <div class="offcanvas-body menu-body">
+        <div class="menu-info">
+          <p class="menu-line">Nickname: {{ props.nickname || "-" }}</p>
+          <p class="menu-line">Email: {{ props.user?.email || "-" }}</p>
+        </div>
+
+        <div class="menu-authors">
+          <p class="menu-label">Authors:</p>
+          <p class="menu-line">Brunon Socha 233861</p>
+          <p class="menu-line">Filip Cetnarowicz 221566</p>
+        </div>
+
+        <div class="logout-button-container">
+          <button
+            type="button"
+            class="btn btn-outline-danger w-100"
+            data-bs-dismiss="offcanvas"
+            @click="emit('logout')"
+          >
+            Log Out
+          </button>
+        </div>
       </div>
     </div>
 
@@ -86,16 +99,35 @@ const emit = defineEmits(["logout"]);
   filter: invert(1) grayscale(100%) brightness(200%);
 }
 
+.menu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.menu-info,
+.menu-authors {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.menu-label,
+.menu-line {
+  margin: 0 0 0.4rem;
+  color: var(--app-white);
+  font-size: 0.95rem;
+}
+
+.menu-label {
+  font-weight: 700;
+}
+
 .logout-button-container {
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
+  margin-top: auto;
+  width: 100%;
 }
 
 .logout-button-container button {
   font-weight: bolder;
-  filter: saturate(2.5);
 }
 </style>

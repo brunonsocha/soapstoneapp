@@ -92,7 +92,7 @@ const {
   shareSelectedPin,
   saveVoicePin,
   reportSelectedPin,
-} = useLeafletMap({ user, rangeMeters: 500 });
+} = useLeafletMap({ user, rangeMeters: 20 });
 
 const handleTypeSelection = (type) => {
   isSelectingType.value = false;
