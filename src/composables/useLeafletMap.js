@@ -41,6 +41,8 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   let map;
   let userMarker;
   let userRangeCircle;
+  let statusTimeout;
+
   const pinMarkers = new Map();
 
   const canShareSelectedPin = computed(() => Boolean(selectedPin.value));
@@ -130,7 +132,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
   const selectPin = (pin) => {
     if (!isPinInRange(pin)) {
       selectedPin.value = null;
-      statusMessage.value = "Podejdź bliżej. Pinezka jest poza Twoim zasięgiem";
+      statusMessage.value = "Come closer! Pin is out of your range";
       return;
     }
 
@@ -191,12 +193,12 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
 
   const openVoiceRecorder = () => {
     if (!userCoords.value) {
-      statusMessage.value = "Najpierw pozwól aplikacji pobrać lokalizację";
+      statusMessage.value = "First, allow the app to fetch your location";
       return;
     }
 
     if (!user.value?.uid) {
-      statusMessage.value = "Zaloguj się ponownie.";
+      statusMessage.value = "Log in again";
       return;
     }
 
@@ -251,17 +253,17 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
 
   const createPinHere = async (type) => {
     if (!userCoords.value) {
-      statusMessage.value = "Najpierw pozwól aplikacji pobrać lokalizację";
+      statusMessage.value = "First, allow the app to fetch your location";
       return;
     }
 
     if (!user.value?.uid) {
-      statusMessage.value = "Zaloguj się ponownie.";
+      statusMessage.value = "Log in again";
       return;
     }
 
     if (type === "text") {
-      const msg = prompt("Wpisz swoją wiadomość:");
+      const msg = prompt("Enter your message:");
       if (msg) await savePinToFirestore("text", msg);
     } else if (type === "image") {
       const input = document.createElement("input");
@@ -273,7 +275,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        statusMessage.value = "Przesyłanie obrazu...";
+        statusMessage.value = "Uploading image...";
         const fileRef = sRef(
           storage,
           `pins/${user.value.uid}/${Date.now()}_${file.name}`,
@@ -283,9 +285,9 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
           await uploadBytes(fileRef, file);
           const url = await getDownloadURL(fileRef);
           await savePinToFirestore("image", url);
-          statusMessage.value = "Obraz zapisany!";
+          statusMessage.value = "Image saved!";
         } catch (err) {
-          statusMessage.value = "Błąd przesyłania.";
+          statusMessage.value = "Error uploading image";
         }
       };
       input.click();
@@ -296,12 +298,12 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     if (!audioBlob) return;
 
     if (!userCoords.value || !user.value?.uid) {
-      statusMessage.value = "Zaloguj się ponownie.";
+      statusMessage.value = "Log in again";
       isRecordingVoice.value = false;
       return;
     }
 
-    statusMessage.value = "Przesyłanie nagrania...";
+    statusMessage.value = "Uploading recording...";
 
     const extension = audioBlob.type.includes("ogg") ? "ogg" : "webm";
     const fileRef = sRef(
@@ -317,10 +319,10 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       const url = await getDownloadURL(fileRef);
       await savePinToFirestore("voice", url);
 
-      statusMessage.value = "Nagranie zapisane!";
+      statusMessage.value = "Recording saved!";
       isRecordingVoice.value = false;
     } catch (error) {
-      statusMessage.value = "Błąd przesyłania nagrania.";
+      statusMessage.value = "Error uploading recording";
     }
   };
 
@@ -337,18 +339,18 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       });
     } else {
       await navigator.clipboard.writeText(url);
-      statusMessage.value = "Link skopiowany.";
+      statusMessage.value = "Link copied";
     }
   };
 
   const reportSelectedPin = async (matter) => {
     if (!selectedPin.value) {
-      statusMessage.value = "Select a pin first.";
+      statusMessage.value = "Select a pin first";
       return;
     }
 
     if (!user.value?.uid) {
-      statusMessage.value = "Log in again.";
+      statusMessage.value = "Log in again";
       return;
     }
 
@@ -360,11 +362,11 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
         reporterId: user.value.uid,
       });
 
-      statusMessage.value = "Report sent.";
+      statusMessage.value = "Report sent";
       closeSelectedPin();
     } catch (err) {
       console.error(err);
-      statusMessage.value = "Could not send report.";
+      statusMessage.value = "Could not send report";
     }
   };
 
@@ -377,7 +379,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
 
     map.on("locationfound", updateUserLocation);
     map.on("locationerror", () => {
-      statusMessage.value = "Nie udało się pobrać lokalizacji";
+      statusMessage.value = "Failed to fetch location";
     });
 
     map.locate({

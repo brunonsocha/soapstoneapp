@@ -1,8 +1,13 @@
 <template>
   <div class="app-container">
     <Transition name="fade" mode="out-in">
+      <div v-if="isLoading" key="loading" class="app-loading">
+        <h2 class="soapstone-title">Loading...</h2>
+      </div>
+
       <LoginPanel
-        v-if="!user"
+        v-else-if="!user"
+        key="login"
         v-model:email="email"
         v-model:password="password"
         :error="error"
@@ -11,18 +16,21 @@
         @google-login="googleLogin"
       />
 
-      <div v-else-if="isLoading" key="loading" class="app-loading">
-        <h2 class="soapstone-title">Loading...</h2>
-      </div>
-
       <NicknameSetup
         v-else-if="!nicknameSet"
+        key="nickname"
         v-model:nickname="tempNickname"
         :error="nickError"
         @save="saveNickname"
       />
 
-      <HomePanel v-else :user="user" :nickname="nickname" @logout="logout" />
+      <HomePanel
+        v-else
+        key="home"
+        :user="user"
+        :nickname="nickname"
+        @logout="logout"
+      />
     </Transition>
   </div>
 </template>
@@ -58,5 +66,11 @@ const {
   display: grid;
   place-items: center;
   color: var(--app-orange);
+}
+
+.app-container {
+  width: 100%;
+  height: 100dvh;
+  background: var(--app-dark-box);
 }
 </style>

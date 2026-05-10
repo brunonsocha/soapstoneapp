@@ -110,12 +110,13 @@ const handleReadablePinSelection = (pin) => {
 .map-shell {
   position: relative;
   width: 100%;
+  height: 100%;
 }
 
 .map-root {
   width: 100%;
   min-height: 420px;
-  height: 75vh;
+  height: 100%;
   border: 1px solid var(--app-orange);
   border-radius: 4px;
 }
@@ -138,7 +139,21 @@ const handleReadablePinSelection = (pin) => {
 }
 
 .map-status {
-  margin-top: 12px;
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  max-width: min(720px, calc(100% - 32px));
+  margin: 0;
+  padding: 8px 14px;
+  color: var(--app-white);
+  background: rgba(0, 0, 0, 0.88);
+  border: 1px solid var(--app-orange);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.3;
 }
 
 :global(.soapstone-user-dot span) {
