@@ -77,7 +77,11 @@ const emit = defineEmits(["logout"]);
 
 .app-header {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 56px;
+  padding: 0 64px;
   background: var(--app-brown);
   border-bottom: 1px solid var(--app-panel-border-soft);
   color: var(--app-white);
@@ -93,7 +97,7 @@ const emit = defineEmits(["logout"]);
 }
 
 .app-title {
-  line-height: 56px;
+  margin: 0;
   letter-spacing: 0.2em;
   color: var(--app-white);
   font-size: x-large;
