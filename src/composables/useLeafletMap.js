@@ -307,10 +307,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       return;
     }
 
-    if (type === "text") {
-      const msg = prompt("Enter your message:");
-      if (msg) await savePinToFirestore("text", msg);
-    } else if (type === "image") {
+    if (type === "image") {
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
@@ -337,6 +334,24 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
       };
       input.click();
     }
+  };
+
+  const saveTextPin = async (message) => {
+    const trimmedMessage = message?.trim();
+
+    if (!trimmedMessage) return;
+
+    if (!userCoords.value) {
+      statusMessage.value = "First, allow the app to fetch your location";
+      return;
+    }
+
+    if (!user.value?.uid) {
+      statusMessage.value = "Log in again";
+      return;
+    }
+
+    await savePinToFirestore("text", trimmedMessage);
   };
 
   const saveVoicePin = async (audioBlob) => {
@@ -483,6 +498,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     openVoiceRecorder,
     closeVoiceRecorder,
     openReadablePin,
+    saveTextPin,
     shareSelectedPin,
     saveVoicePin,
     loadPins,

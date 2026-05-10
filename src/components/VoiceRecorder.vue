@@ -1,7 +1,7 @@
 <template>
   <div class="recorder-overlay" @click.self="handleCancel">
     <div class="recorder-panel">
-      <p class="recorder-title">Voice Message</p>
+      <h3 class="recorder-title">Voice Message</h3>
       <p class="recorder-status">{{ statusText }}</p>
       <p v-if="errorMessage" class="recorder-error">{{ errorMessage }}</p>
 
@@ -12,7 +12,7 @@
           Start recording
         </button>
 
-        <button v-if="isRecording" type="button" class="btn btn-outline-light" @click="stopRecording">
+        <button v-if="isRecording" type="button" class="recorder-secondary-button" @click="stopRecording">
           Stop recording
         </button>
 
@@ -20,11 +20,11 @@
           Save message
         </button>
 
-        <button v-if="audioBlob" type="button" class="btn btn-outline-light" @click="resetRecording">
+        <button v-if="audioBlob" type="button" class="recorder-secondary-button" @click="resetRecording">
           Record again
         </button>
 
-        <button type="button" class="btn btn-outline-light" @click="handleCancel">
+        <button type="button" class="recorder-secondary-button" @click="handleCancel">
           Cancel
         </button>
       </div>
@@ -140,52 +140,83 @@ onUnmounted(() => {
   inset: 0;
   z-index: 3100;
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
   background: var(--app-overlay-strong);
 }
 
 .recorder-panel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 16px;
-  width: 100%;
-  min-height: 100%;
-  padding: 24px;
-  background: var(--app-brown);
+  width: min(100%, 420px);
+  padding: 20px;
+  background: var(--app-dark-box);
   border: 1px solid var(--app-panel-border);
+  border-radius: 8px;
 }
 
 .recorder-title {
-  margin: 0;
-  font-size: 1.25rem;
+  margin: 0 0 12px;
   color: var(--app-orange);
+  font-size: 1.1rem;
 }
 
-.recorder-status,
-.recorder-error {
-  margin: 0;
+.recorder-status {
+  margin: 0 0 12px;
+  color: var(--app-text);
 }
 
 .recorder-error {
+  margin: 0 0 12px;
   color: var(--app-yellow);
 }
 
 .recorder-audio {
   width: 100%;
+  margin-bottom: 12px;
 }
 
 .recorder-actions {
   display: flex;
-  flex-wrap: wrap;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.recorder-actions button {
+  flex: 1 1 calc(50% - 5px);
+}
+
+.btn-orange {
+  color: var(--app-brown);
+  background: var(--app-orange);
+  border: 1px solid var(--app-orange);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.btn-orange:hover,
+.btn-orange:focus {
+  color: var(--app-brown);
+  background: var(--app-yellow);
+  border-color: var(--app-yellow);
+}
+
+.recorder-secondary-button {
+  flex: 1 1 calc(50% - 5px);
+  padding: 0.75rem 1rem;
+  color: var(--app-text);
+  background: transparent;
+  border: 1px solid var(--app-panel-border);
+  border-radius: 6px;
+}
+
+.recorder-secondary-button:hover,
+.recorder-secondary-button:focus {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 @media (max-width: 720px) {
   .recorder-overlay {
     position: fixed;
-    inset: 0;
   }
 
   .recorder-panel {

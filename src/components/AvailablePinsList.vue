@@ -138,6 +138,13 @@ const formatCreatedAt = (value) => {
   border-radius: 8px;
 }
 
+.available-item:hover,
+.available-item:focus {
+  color: var(--app-text);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--app-panel-border);
+}
+
 .available-type {
   color: var(--app-orange);
   font-size: 0.82rem;

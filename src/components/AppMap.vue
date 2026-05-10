@@ -30,6 +30,14 @@
     </Transition>
 
     <Transition name="fade">
+      <TextMessageField
+        v-if="isWritingText"
+        @save="handleTextSave"
+        @cancel="isWritingText = false"
+      />
+    </Transition>
+
+    <Transition name="fade">
       <PinTypeSelector
         v-if="isSelectingType"
         @select="handleTypeSelection"
@@ -67,6 +75,7 @@ import { ref, toRef } from "vue";
 import AvailablePinsList from "./AvailablePinsList.vue";
 import PinTypeSelector from "./PinTypeSelector.vue";
 import PinMessageViewer from "./PinMessageViewer.vue";
+import TextMessageField from "./TextMessageField.vue";
 import VoiceRecorder from "./VoiceRecorder.vue";
 import { useLeafletMap } from "../composables/useLeafletMap";
 
@@ -76,6 +85,7 @@ const props = defineProps({
 const user = toRef(props, "user");
 const isSelectingType = ref(false);
 const isViewingReadablePins = ref(false);
+const isWritingText = ref(false);
 
 const {
   mapEl,
@@ -89,6 +99,7 @@ const {
   openVoiceRecorder,
   closeVoiceRecorder,
   openReadablePin,
+  saveTextPin,
   shareSelectedPin,
   saveVoicePin,
   reportSelectedPin,
@@ -96,6 +107,11 @@ const {
 
 const handleTypeSelection = (type) => {
   isSelectingType.value = false;
+
+  if (type === "text") {
+    isWritingText.value = true;
+    return;
+  }
 
   if (type === "voice") {
     openVoiceRecorder();
@@ -107,6 +123,11 @@ const handleTypeSelection = (type) => {
 
 const handleVoiceSave = async (blob) => {
   await saveVoicePin(blob);
+};
+
+const handleTextSave = async (message) => {
+  await saveTextPin(message);
+  isWritingText.value = false;
 };
 
 const handleReadablePinSelection = (pin) => {
