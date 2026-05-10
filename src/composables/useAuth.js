@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc, getDocs, query, setDoc, where, collection } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export const useAuth = () => {
   const user = ref(null);
@@ -83,22 +83,6 @@ export const useAuth = () => {
     }
 
     try {
-      const existingUsers = await getDocs(
-        query(
-          collection(db, "users"),
-          where("nicknameLower", "==", normalizedNickname),
-        ),
-      );
-
-      const nicknameTaken = existingUsers.docs.some(
-        (snapshot) => snapshot.id !== user.value.uid,
-      );
-
-      if (nicknameTaken) {
-        nickError.value = "That nickname is already taken.";
-        return;
-      }
-
       await setDoc(doc(db, "users", user.value.uid), {
         nickname: trimmedNickname,
         nicknameLower: normalizedNickname,

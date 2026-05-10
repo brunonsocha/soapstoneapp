@@ -341,7 +341,7 @@ export const useLeafletMap = ({ user, rangeMeters = 500 } = {}) => {
     if (!selectedPin.value) return;
 
     const { id, lat, lng } = selectedPin.value;
-    const appUrl = `${window.location.origin}${window.location.pathname}?pin=${id}`;
+    const appUrl = `${window.location.origin}`;
     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
     const shareText = [
       "I left you a message in MailStone!",
