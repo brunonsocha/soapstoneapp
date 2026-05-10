@@ -1,1 +1,1 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/soapstoneapp/sw.js', { scope: '/soapstoneapp/' })})}
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/mailstone-pwa/sw.js', { scope: '/mailstone-pwa/' })})}
